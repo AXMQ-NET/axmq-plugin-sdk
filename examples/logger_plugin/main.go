@@ -91,7 +91,7 @@ func (p *LoggerPlugin) OnAuth(ctx *pluginapi.AuthContext) (bool, error) {
 	return true, nil // 允许所有连接（仅记录）
 }
 
-// OnPublish 发布钩子 - 记录消息
+// OnPublish 发布钩子 - 记录消息（异步通知，不阻塞消息分发）
 func (p *LoggerPlugin) OnPublish(ctx *pluginapi.PublishContext) {
 	p.mu.Lock()
 	p.msgCount++

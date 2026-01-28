@@ -96,11 +96,12 @@ go run github.com/AXMQ-NET/axmq-plugin-sdk/runner@latest -plugin ./my_plugin.so
 
 ```bash
 # 复制到 AXMQ 插件目录，自动加载
-cp my_plugin.so /path/to/axmq/storage/plugins/
-cp my_plugin.so.meta.json /path/to/axmq/storage/plugins/
+# AXMQ启动时会提示正真的路径：例如：Watcher started: ./data/plugins
+cp my_plugin.so ./data/plugins
+cp my_plugin.so.meta.json ./data/plugins
 
 # 可选：插件配置
-cp my_plugin.yml /path/to/axmq/storage/plugins/
+cp my_plugin.yml ./data/plugins
 ```
 
 ## 钩子说明
@@ -109,7 +110,7 @@ cp my_plugin.yml /path/to/axmq/storage/plugins/
 |------|---------|------|----------|------|
 | `OnAuth` | CONNECT 认证 | 是 | 超时→拒绝 | 自定义认证、外部系统对接 |
 | `OnSubscribe` | SUBSCRIBE 处理 | 是 | 超时→拒绝 | 订阅 ACL、审计 |
-| `OnPublish` | PUBLISH 处理后 | 否 | 超时→跳过 | 消息审计、日志、通知 |
+| `OnPublish` | PUBLISH 处理后 | 否 | 超时→跳过 | 消息审计、日志、通知（由 `OnPublishAsync` 异步触发） |
 | `OnDisconnect` | 连接断开 | 否 | 超时→跳过 | 清理、审计 |
 
 **执行特性**：
@@ -118,6 +119,18 @@ cp my_plugin.yml /path/to/axmq/storage/plugins/
 - 每个插件有独立超时，互不影响
 - 插件 panic 不影响主程序
 - 频繁出错的插件会被自动禁用（熔断保护）
+- **OnPublish 异步通知**：主程序使用 `OnPublishAsync` 触发，不阻塞消息分发
+
+### OnPublishAsync 示例
+
+`OnPublish` 默认由主程序异步调用，插件只需实现 `OnPublish`：
+
+```go
+func (p *MyPlugin) OnPublish(ctx *pluginapi.PublishContext) {
+    // 异步触发的通知钩子，不能阻塞业务主流程
+    log.Printf("publish: user=%s topic=%s qos=%d", ctx.Username, ctx.Topic, ctx.QoS)
+}
+```
 
 ## 超时配置
 
