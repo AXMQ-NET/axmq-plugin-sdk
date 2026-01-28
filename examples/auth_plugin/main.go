@@ -4,8 +4,8 @@
 // 示例：自定义认证插件
 // 演示如何实现 OnAuth 钩子，对接外部用户系统
 //
-// 构建：go run ../../tools/build/main.go -dir . -output ./auth_plugin.so
-// 测试：go run ../../runner/main.go -plugin ./auth_plugin.so
+// 构建（Linux amd64）：go run ../../tools/build/main.go -dir . -output ./auth_plugin.so -goos linux -goarch amd64 -v
+// 测试（Linux amd64 环境）：go run ../../runner/main.go -plugin ./auth_plugin.so
 
 package main
 

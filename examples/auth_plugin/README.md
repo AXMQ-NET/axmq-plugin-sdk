@@ -9,6 +9,16 @@ cd examples/auth_plugin
 go run ../../tools/build/main.go -dir . -output ./auth_plugin.so
 ```
 
+Linux amd64 交叉编译（macOS）：
+
+```bash
+brew install zig
+
+CC="zig cc -target x86_64-linux-gnu" \
+CXX="zig c++ -target x86_64-linux-gnu" \
+go run ../../tools/build/main.go -dir . -output ./auth_plugin.so -goos linux -goarch amd64
+```
+
 ## 本地测试
 
 ```bash

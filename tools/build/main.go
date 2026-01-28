@@ -5,6 +5,7 @@
 //
 // 使用方法：
 //   go run tools/build/main.go -dir ./my_plugin -output ./my_plugin.so
+//   go run tools/build/main.go -dir ./my_plugin -output ./my_plugin.so -goos linux -goarch amd64
 
 package main
 
@@ -26,6 +27,8 @@ var (
 	pluginDir  = flag.String("dir", ".", "Path to plugin source directory")
 	outputPath = flag.String("output", "", "Output path for the plugin .so file")
 	verbose    = flag.Bool("v", false, "Verbose output")
+	targetOS   = flag.String("goos", "", "Target GOOS (empty = host)")
+	targetArch = flag.String("goarch", "", "Target GOARCH (empty = host)")
 )
 
 // BuildMeta 构建元数据（写入到 .meta.json）
@@ -69,12 +72,20 @@ func main() {
 
 	// 2. 构建插件
 	log("Running: go build -buildmode=plugin")
+	if *targetOS != "" || *targetArch != "" {
+		log("Target: %s/%s", defaultIfEmpty(*targetOS, runtime.GOOS), defaultIfEmpty(*targetArch, runtime.GOARCH))
+	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", absOutput, ".")
 	cmd.Dir = absDir
-	cmd.Env = append(os.Environ(),
-		"CGO_ENABLED=1", // 插件必须启用 CGO
-	)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "CGO_ENABLED=1") // 插件必须启用 CGO
+	if *targetOS != "" {
+		cmd.Env = append(cmd.Env, "GOOS="+*targetOS)
+	}
+	if *targetArch != "" {
+		cmd.Env = append(cmd.Env, "GOARCH="+*targetArch)
+	}
 
 	if *verbose {
 		cmd.Stdout = os.Stdout
@@ -92,6 +103,8 @@ func main() {
 	pluginName := strings.TrimSuffix(filepath.Base(absOutput), ".so")
 	hostname, _ := os.Hostname()
 
+	buildOS := defaultIfEmpty(*targetOS, runtime.GOOS)
+	buildArch := defaultIfEmpty(*targetArch, runtime.GOARCH)
 	meta := BuildMeta{
 		PluginMeta: pluginapi.PluginMeta{
 			Name:       pluginName,
@@ -101,8 +114,8 @@ func main() {
 			BuildTime:  time.Now().Format(time.RFC3339),
 		},
 		BuildHost: hostname,
-		BuildOS:   runtime.GOOS,
-		BuildArch: runtime.GOARCH,
+		BuildOS:   buildOS,
+		BuildArch: buildArch,
 	}
 
 	// 4. 写入元数据文件
@@ -125,6 +138,13 @@ func main() {
 
 func log(format string, args ...interface{}) {
 	fmt.Printf(format+"\n", args...)
+}
+
+func defaultIfEmpty(value, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
 }
 
 func fatal(format string, args ...interface{}) {

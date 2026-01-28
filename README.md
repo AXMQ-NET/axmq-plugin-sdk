@@ -78,6 +78,22 @@ go build -buildmode=plugin -o my_plugin.so .
 go run github.com/AXMQ-NET/axmq-plugin-sdk/tools/build@latest -dir . -output ./my_plugin.so
 ```
 
+交叉编译（Linux amd64）：
+
+```bash
+go run github.com/AXMQ-NET/axmq-plugin-sdk/tools/build@latest -dir . -output ./my_plugin.so -goos linux -goarch amd64
+```
+
+macOS 下使用 Zig 交叉编译（Linux amd64）：
+
+```bash
+brew install zig
+
+CC="zig cc -target x86_64-linux-gnu" \
+CXX="zig c++ -target x86_64-linux-gnu" \
+go run github.com/AXMQ-NET/axmq-plugin-sdk/tools/build@latest -dir . -output ./my_plugin.so -goos linux -goarch amd64
+```
+
 ### 4. 本地测试
 
 ```bash

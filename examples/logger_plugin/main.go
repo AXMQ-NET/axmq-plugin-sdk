@@ -4,8 +4,8 @@
 // 示例：消息日志插件
 // 演示如何实现 OnPublish 钩子，记录所有消息到外部系统
 //
-// 构建：go run ../../tools/build/main.go -dir . -output ./logger_plugin.so
-// 测试：go run ../../runner/main.go -plugin ./logger_plugin.so
+// 构建（Linux amd64）：go run ../../tools/build/main.go -dir . -output ./logger_plugin.so -goos linux -goarch amd64
+// 测试（Linux amd64 环境）：go run ../../runner/main.go -plugin ./logger_plugin.so
 
 package main
 
