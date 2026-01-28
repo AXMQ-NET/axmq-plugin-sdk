@@ -1,0 +1,21 @@
+# Binaries
+*.so
+*.dylib
+*.dll
+
+# Build artifacts
+*.meta.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test output
+/tmp/
+*.log

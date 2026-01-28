@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Auth - valid user",
+    "hook": "auth",
+    "input": {
+      "ClientID": "client001",
+      "Username": "admin",
+      "Password": "c2VjcmV0",
+      "IP": "192.168.1.100"
+    },
+    "expect": {
+      "allow": true
+    }
+  },
+  {
+    "name": "Auth - invalid user",
+    "hook": "auth",
+    "input": {
+      "ClientID": "client002",
+      "Username": "unknown",
+      "Password": "wrong",
+      "IP": "192.168.1.101"
+    },
+    "expect": {
+      "allow": false
+    }
+  },
+  {
+    "name": "Subscribe - allowed topic",
+    "hook": "subscribe",
+    "input": {
+      "ClientID": "client001",
+      "Username": "admin",
+      "Topic": "sensor/+/data",
+      "QoS": 1
+    },
+    "expect": {
+      "allow": true
+    }
+  },
+  {
+    "name": "Publish - normal message",
+    "hook": "publish",
+    "input": {
+      "ClientID": "client001",
+      "Username": "admin",
+      "Topic": "sensor/1/data",
+      "Payload": "eyJ0ZW1wIjogMjUuNX0=",
+      "QoS": 1,
+      "Retain": false
+    },
+    "expect": {
+      "allow": true
+    }
+  },
+  {
+    "name": "Disconnect - graceful",
+    "hook": "disconnect",
+    "input": {
+      "ClientID": "client001",
+      "Username": "admin",
+      "Reason": "graceful"
+    },
+    "expect": {
+      "allow": true
+    }
+  }
+]
